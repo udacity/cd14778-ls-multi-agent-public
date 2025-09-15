@@ -1,0 +1,11 @@
+gene,variant,zygosity,notes
+CFTR,rs113993960,het,F508del
+HBB,rs334,het,Sickle cell (E6V)
+GBA,rs76763715,het,N370S
+LRRK2,rs34637584,het,G2019S
+F5,rs6025,het,Factor V Leiden
+F2,rs1799963,het,Prothrombin G20210A
+SERPINA1,rs28929474,het,Alpha-1 antitrypsin Z
+PCSK9,rs11591147,het,R46L
+TTR,rs76992529,het,Val122Ile
+MTHFR,rs1801133,het,C677T
