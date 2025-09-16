@@ -8,6 +8,9 @@ import report
 
 from logging_utils import JSONLLogger
 
+import sys
+sys.path.append("/workspace/code") # set this to the path containing the "ls_action_space" package
+
 # tools for querying ClinVar, PubMed, ClinTrials
 from ls_action_space.action_space import query_clinvar, query_pubmed, query_clinicaltrials
 

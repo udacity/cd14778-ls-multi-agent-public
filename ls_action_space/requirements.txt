@@ -1,0 +1,12 @@
+# For core functionality
+requests
+pandas
+biopython
+beautifulsoup4
+lxml
+pypdf2
+arxiv
+dotenv
+
+# For improved web content extraction
+readability-lxml
