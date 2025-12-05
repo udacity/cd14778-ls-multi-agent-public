@@ -567,7 +567,7 @@ def query_clinvar(variant: str) -> Dict[str, Any]:
     else:
         # Handle ListElement responses - use esummary instead for cleaner parsing
         doc = None
-    
+
     title = None
     significance = None
     review_status = None
@@ -583,23 +583,23 @@ def query_clinvar(variant: str) -> Dict[str, Any]:
         summ = _entrez_call("esummary", db="clinvar", id=uid)
         summ_rec = Entrez.read(summ, validate=False)  # Disable DTD validation
         summ.close()
-        
+
         if "DocumentSummarySet" in summ_rec:
             ds = summ_rec["DocumentSummarySet"]["DocumentSummary"][0]
-            
+
             # Extract title
             title = ds.get("title")
-            
+
             # Extract clinical significance - try multiple fields due to ClinVar schema changes
             significance = None
             review_status = None
-            
+
             # Try germline_classification (newer format)
             germline = ds.get("germline_classification")
             if germline and isinstance(germline, dict):
                 significance = germline.get("description") or germline.get("last_evaluated")
                 review_status = germline.get("review_status")
-            
+
             # Try clinical_significance (older format)
             if not significance:
                 clin_sig = ds.get("clinical_significance")
@@ -608,28 +608,28 @@ def query_clinvar(variant: str) -> Dict[str, Any]:
                     review_status = clin_sig.get("review_status")
                 elif isinstance(clin_sig, str):
                     significance = clin_sig
-            
+
             # Fallback to direct review_status field
             if not review_status:
                 review_status = ds.get("review_status")
-            
+
             # Extract conditions/traits - check both trait_set and germline_classification.trait_set
             conditions = []
-            
+
             # Check top-level trait_set
             trait_set = ds.get("trait_set", [])
             if isinstance(trait_set, list):
                 conditions.extend([t.get("trait_name") for t in trait_set if isinstance(t, dict) and t.get("trait_name")])
-            
+
             # Check germline_classification.trait_set (newer location)
             if germline and isinstance(germline, dict):
                 germline_traits = germline.get("trait_set", [])
                 if isinstance(germline_traits, list):
                     conditions.extend([t.get("trait_name") for t in germline_traits if isinstance(t, dict) and t.get("trait_name")])
-            
+
             # Remove duplicates
             conditions = list(set(filter(None, conditions)))
-            
+
             # Extract genes
             genes = ds.get("genes", [])
             if isinstance(genes, list) and genes:
@@ -640,7 +640,7 @@ def query_clinvar(variant: str) -> Dict[str, Any]:
                     gene = None
             else:
                 gene = None
-            
+
             # Extract accession
             acc = ds.get("accession")
             if acc:
@@ -648,7 +648,7 @@ def query_clinvar(variant: str) -> Dict[str, Any]:
                     accessions["RCV"].append(str(acc))
                 elif str(acc).startswith("VCV"):
                     accessions["VCV"].append(str(acc))
-            
+
             # Extract HGVS expressions
             hgvs = ds.get("hgvs_expressions", {})
             if isinstance(hgvs, dict):
@@ -657,7 +657,7 @@ def query_clinvar(variant: str) -> Dict[str, Any]:
                         hgvs_list.extend([str(i) for i in v])
                     elif v:
                         hgvs_list.append(str(v))
-                        
+
     except Exception as e:
         # If esummary fails, significance will remain None
         pass
@@ -676,13 +676,13 @@ def query_clinvar(variant: str) -> Dict[str, Any]:
 
     # Extract allele frequencies from ClinVar variation_set (preferred) or Variation Services
     allele_freqs: Dict[str, float] = {}
-    
+
     # Try extracting from ClinVar esummary first (more reliable)
     try:
         if "DocumentSummarySet" in summ_rec:
             ds = summ_rec["DocumentSummarySet"]["DocumentSummary"][0]
             variation_set = ds.get("variation_set", [])
-            
+
             if isinstance(variation_set, list):
                 for variation in variation_set:
                     if isinstance(variation, dict):
@@ -702,7 +702,7 @@ def query_clinvar(variant: str) -> Dict[str, Any]:
                                             pass
     except Exception:
         pass
-    
+
     # Fallback to Variation Services if no frequencies found and we have an rsID
     if not allele_freqs and re.match(r"^rs\d+$", variant, re.IGNORECASE):
         try:
